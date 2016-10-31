@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Are you 18 years of age or older? If so, please continue  I hereby grant permission to AK and the Ryerson University research team video me, and otherwise  capture my image, and to make recordings of my voice. I further grant AK and the Ryerson University  research team the right to use it and share it with AK’s health professionals and circle of care providers.  Video images and voice recordings are the property of AK and the Ryerson University research team."
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="38dp"
+        android:layout_alignStart="@+id/textView2"
+        android:layout_alignEnd="@+id/editText" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/editText"
+        android:layout_below="@+id/textView"
+        android:layout_toEndOf="@+id/textView2" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="date"
+        android:ems="10"
+        android:id="@+id/editText2"
+        android:layout_below="@+id/editText"
+        android:layout_toEndOf="@+id/textView2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="First and last name:"
+        android:id="@+id/textView2"
+        android:layout_marginStart="74dp"
+        android:layout_above="@+id/editText2"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date:"
+        android:id="@+id/textView3"
+        android:layout_alignBottom="@+id/editText2"
+        android:layout_toStartOf="@+id/editText" />
+
+</RelativeLayout>
