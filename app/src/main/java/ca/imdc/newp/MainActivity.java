@@ -170,9 +170,9 @@ public class MainActivity extends AppCompatActivity {
         cfileName = videoDir.getAbsolutePath() + "/Untitled-" + a + ".mp4";
         //encfileName = new File(System.getProperty("user.dir") + "/Encrypted/").getAbsolutePath() + "/Untitled-" + a + ".mp4";
         encfileName = getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/Untitled-" + a + ".mp4";
-        //System.out.println("Video Dir: " + videoDir.getAbsolutePath());
-        //System.out.println("CFile Dir: " + cfileName);
-        //System.out.println("EncFile Dir: " + encfileName);
+        System.out.println("Video Dir: " + videoDir.getAbsolutePath());
+        System.out.println("CFile Dir: " + cfileName);
+        System.out.println("EncFile Dir: " + encfileName);
         File cFileDir = new File(cfileName);
         takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile((new File(cfileName))));
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
