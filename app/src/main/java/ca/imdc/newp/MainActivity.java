@@ -1,6 +1,7 @@
 package ca.imdc.newp;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -28,6 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.Random;
 
@@ -162,10 +164,16 @@ public class MainActivity extends AppCompatActivity {
         Random random = new Random();
         a = random.nextInt(70) + 1;
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        //File videoDir = new File(System.getProperty("user.dir") + "/Video/");
         File videoDir = new File(getExternalFilesDir(null).getAbsolutePath() + "/Video/");
         if(!videoDir.exists()) videoDir.mkdir();
-        cfileName = videoDir + "Untitled-" + a + ".mp4";
-        encfileName = getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/" + "Untitled-" + a + ".mp4";
+        cfileName = videoDir.getAbsolutePath() + "/Untitled-" + a + ".mp4";
+        //encfileName = new File(System.getProperty("user.dir") + "/Encrypted/").getAbsolutePath() + "/Untitled-" + a + ".mp4";
+        encfileName = getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/Untitled-" + a + ".mp4";
+        System.out.println("Video Dir: " + videoDir.getAbsolutePath());
+        System.out.println("CFile Dir: " + cfileName);
+        System.out.println("EncFile Dir: " + encfileName);
+        File cFileDir = new File(cfileName);
         takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile((new File(cfileName))));
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
