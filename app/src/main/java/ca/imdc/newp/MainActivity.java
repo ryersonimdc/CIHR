@@ -13,6 +13,7 @@ import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -166,15 +167,25 @@ public class MainActivity extends AppCompatActivity {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         //File videoDir = new File(System.getProperty("user.dir") + "/Video/");
         File videoDir = new File(getExternalFilesDir(null).getAbsolutePath() + "/Video/");
-        if(!videoDir.exists()) videoDir.mkdir();
+        //File videoDir = new File(getFilesDir().getAbsolutePath() + "/Video/");
+        if(!videoDir.exists()){
+            if(videoDir.mkdirs())
+                System.out.println("VIDEO DIR CREATED");
+        }
         cfileName = videoDir.getAbsolutePath() + "/Untitled-" + a + ".mp4";
         //encfileName = new File(System.getProperty("user.dir") + "/Encrypted/").getAbsolutePath() + "/Untitled-" + a + ".mp4";
         encfileName = getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/Untitled-" + a + ".mp4";
-        System.out.println("Video Dir: " + videoDir.getAbsolutePath());
-        System.out.println("CFile Dir: " + cfileName);
-        System.out.println("EncFile Dir: " + encfileName);
+        //encfileName = getFilesDir().getAbsolutePath() + "/Encrypted/Untitled-" + a + ".mp4";
+        //System.out.println("Video Dir: " + videoDir.getAbsolutePath());
+        //System.out.println("CFile Dir: " + cfileName);
+        //System.out.println("EncFile Dir: " + encfileName);
         File cFileDir = new File(cfileName);
-        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile((new File(cfileName))));
+        if(!cFileDir.exists()) {
+            if(cFileDir.mkdirs())
+                System.out.println("CFILEDIR DIR CREATED");
+        }
+        Uri videoUri = FileProvider.getUriForFile(MainActivity.this, "ca.imdc.newp.fileprovider", (new File(cfileName)));
+        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoUri);//Uri.fromFile((new File(cfileName))));
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
         }
@@ -236,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
         File folder = new File(getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/");
         if(folder.exists() && (folder.list().length>0)) return true;
         else if(folder.exists() && (folder.list().length==0)) return false;
-        else folder.mkdir() ;
+        else folder.mkdirs() ;
         return false;
     }
     public void deleteIt(String path)
@@ -334,8 +345,7 @@ public class MainActivity extends AppCompatActivity {
             return builder.create();
         }
     }
-    public class dialog2 extends DialogFragment
-    {
+    public class dialog2 extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstance) {
 
