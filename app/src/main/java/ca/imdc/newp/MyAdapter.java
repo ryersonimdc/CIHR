@@ -26,8 +26,6 @@ import java.util.List;
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private String[] mDataset;
     private String[] mDate;
-
-
     public Context mContext;
     Thread t = null;
     private static final int LENGTH = 18;
@@ -105,8 +103,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 notifyItemRemoved(position);
                 System.out.println(holder.mTextView.getText());
                 String name = (String) holder.mTextView.getText();
-                mainact.deleteIt(mContext.getExternalFilesDir(null).getAbsolutePath()+"/Encrypted/"+name);
-                mainact.deleteIt(mContext.getExternalFilesDir(null).getAbsolutePath()+"/Video/"+name.replace(".encrypt",""));
+              //  mainact.deleteIt(mContext.getExternalFilesDir(null).getAbsolutePath()+"/Encrypted/"+name);
+              //  mainact.deleteIt(mContext.getExternalFilesDir(null).getAbsolutePath()+"/Video/"+name.replace(".encrypt",""));
+
+                mainact.deleteIt("/storage/emulated/0/Pictures"+"/Encrypted/"+name);
+                mainact.deleteIt("/storage/emulated/0/Pictures"+"/Video/"+name.replace(".encrypt",""));
             }
         });
 //// TODO: 17/08/2016  implement date and time datasets. We need to retrieve it directly from an array
@@ -114,7 +115,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        if(mDataset==null) return 0;
-        else return mDataset.length;
+        return mDataset.length;
     }
 }

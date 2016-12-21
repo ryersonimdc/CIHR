@@ -1,18 +1,18 @@
 package ca.imdc.newp;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -28,8 +28,6 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.TextView;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.Random;
 
@@ -49,11 +47,25 @@ public class MainActivity extends AppCompatActivity {
     private String[] myDate;
     private String[] myTime;
 
-    public boolean videosExist = false;
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int permsRequestCode, String[] permissions, int[] grantResults){
+        switch(permsRequestCode){
+            case 200:
+                boolean audioAccepted = grantResults[0]==PackageManager.PERMISSION_GRANTED;
+                boolean cameraAccepted = grantResults[1]== PackageManager.PERMISSION_GRANTED;
+                break;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String[] perms = {"android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.CAMERA"};
+        int permsRequestCode = 200;
+        requestPermissions(perms, permsRequestCode);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
@@ -63,12 +75,12 @@ public class MainActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
         // specify an adapter (see also next example)
-        if(videosExist()) {
-            myDataset = populateList("names");
-            myDate = populateList("date");
-        }
-        mAdapter = new MyAdapter(myDataset, myDate,this);
+        //------------------------------------------------ Uncomment this
+        myDataset = populateList("names");
+        myDate = populateList("date");
+       mAdapter = new MyAdapter(myDataset, myDate,this);
         mRecyclerView.setAdapter(mAdapter);
+       // ------------------------------------------
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         //  mRecyclerView.setHasFixedSize(false);
@@ -111,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
     String[] populateList(String g) {
         MediaMetadataRetriever infoVideo = new MediaMetadataRetriever();
         File folder = new File(getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/");
+      //  File folder = new File("/storage/emulated/0/Pictures/Encrypted/"); //converted for PixelC
         File[] listOfFiles = folder.listFiles();
         String items[] = new String[listOfFiles.length];
         if (g == "date") {
@@ -126,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (g == "names") {
             for (int i = 0; i < listOfFiles.length; i++) {
                 if (listOfFiles[i].isFile()) {
-                    //  infoVideo.setDataSource(listOfFiles[i].getAbsolutePath());
+              //        infoVideo.setDataSource(listOfFiles[i].getAbsolutePath());
                     Date lastModDate = new Date(listOfFiles[i].lastModified());
                     System.out.println("Last modified date:" + lastModDate.toString());
                     items[i] = listOfFiles[i].getName();
@@ -164,41 +177,39 @@ public class MainActivity extends AppCompatActivity {
         Random random = new Random();
         a = random.nextInt(70) + 1;
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        //File videoDir = new File(System.getProperty("user.dir") + "/Video/");
-        File videoDir = new File(getExternalFilesDir(null).getAbsolutePath() + "/Video/");
-        if(!videoDir.exists()) videoDir.mkdir();
-        cfileName = videoDir.getAbsolutePath() + "/Untitled-" + a + ".mp4";
-        //encfileName = new File(System.getProperty("user.dir") + "/Encrypted/").getAbsolutePath() + "/Untitled-" + a + ".mp4";
-        encfileName = getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/Untitled-" + a + ".mp4";
-        System.out.println("Video Dir: " + videoDir.getAbsolutePath());
-        System.out.println("CFile Dir: " + cfileName);
-        System.out.println("EncFile Dir: " + encfileName);
-        File cFileDir = new File(cfileName);
-        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile((new File(cfileName))));
-        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+       // cfileName = "/storage/emulated/0/Pictures" + "/Video/" + "Untitled-" + a + ".mp4";
+
+cfileName = getExternalFilesDir(null).getAbsolutePath() + "/Video/" + "Untitled-" + a + ".mp4";
+        //converted for PixelC
+       // encfileName = "/storage/emulated/0/Pictures" + "/Encrypted/" + "Untitled-" + a + ".mp4";
+encfileName = getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/" + "Untitled-" + a + ".mp4";
+        //converted for PixelC
+        System.out.println(cfileName);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", (new File(cfileName))));
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null)
+        {
             startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
         //super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_CANCELED) {
             if (requestCode == REQUEST_VIDEO_CAPTURE) {
                 cry();
                 deleteAllVids();
-                if(videosExist()) {
-                    myDataset = populateList("names");
-                    myDate = populateList("date");
-                }
+                myDataset = populateList("names");
+                myDate = populateList("date");
                 mAdapter = new MyAdapter(myDataset, myDate,this);
                 mRecyclerView.setAdapter(mAdapter);
-
             }
         }
     }
 
-    private void cry() {
+    private void cry()
+    {
         final String key = "1111111111111111";
         final cryptoHash halo = new cryptoHash();
         try {
@@ -216,14 +227,16 @@ public class MainActivity extends AppCompatActivity {
             });
             t.start();
             t.join();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             System.out.println(e.getMessage());
         }
     }
 
     public void deleteAllVids()
     {
-        File folder = new File(getExternalFilesDir(null).getAbsolutePath()+"/Video/");
+       // File folder = new File("/storage/emulated/0/Pictures"+"/Video/");
+        File folder = new File ("/storage/emulated/0/Android/data/ca.imdc.newp/files/Video/");
         File[] listOfFiles = folder.listFiles();
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
@@ -232,13 +245,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    public boolean videosExist(){
-        File folder = new File(getExternalFilesDir(null).getAbsolutePath() + "/Encrypted/");
-        if(folder.exists() && (folder.list().length>0)) return true;
-        else if(folder.exists() && (folder.list().length==0)) return false;
-        else folder.mkdir() ;
-        return false;
-    }
+
     public void deleteIt(String path)
     {
         File folder = new File(path);
@@ -251,8 +258,8 @@ public class MainActivity extends AppCompatActivity {
         final String key = "1111111111111111";
         final cryptoHash halo = new cryptoHash();
         String a = name.replaceAll(".encrypt", "");
-
         final File decr = new File("/storage/emulated/0/Android/data/ca.imdc.newp/files/Video/" + a);
+      //  final File decr = new File("/storage/emulated/0/Pictures/Video/" + a);
         System.out.println("File Path decr: " + decr.getAbsolutePath());
         try {
             decr.createNewFile();
@@ -260,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(e.getMessage());
         }
         final File encryptedFile = new File("/storage/emulated/0/Android/data/ca.imdc.newp/files/Encrypted/" + name);
+       // final File encryptedFile = new File("/storage/emulated/0/Pictures/Encrypted/" + name);
         System.out.println("File Path decr: " + encryptedFile.getAbsolutePath());
         try {
             t = new Thread(new Runnable() {
@@ -286,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
     private String createfile(String type)
     {
         String fName = null;
@@ -311,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
         return fName;
     }
 
+
     public class dialog  extends DialogFragment{
         @Override
         public Dialog onCreateDialog(Bundle savedInstance) {
@@ -321,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
             builder.setTitle("Who are you recording?")
                     .setPositiveButton("SELF", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            dispatchTakeVideoIntent();
+                           dispatchTakeVideoIntent();
                         }
                     })
                     .setNeutralButton("OTHER", new DialogInterface.OnClickListener() {
@@ -334,6 +344,7 @@ public class MainActivity extends AppCompatActivity {
             return builder.create();
         }
     }
+
     public class dialog2 extends DialogFragment
     {
         @Override
@@ -360,4 +371,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+
 }
